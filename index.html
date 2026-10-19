@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESP32 Dashboard - EcoNode</title>
+    <style>
+        * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 0; }
+        body { background-color: #f4f6f9; color: #333; padding: 20px; display: flex; justify-content: center; }
+        .container { width: 100%; max-width: 900px; }
+        h1 { font-size: 1.5rem; margin-bottom: 5px; color: #1a252f; }
+        p.subtitle { color: #7f8c8d; font-size: 0.9rem; margin-bottom: 20px; }
+        
+        .card-section { background: white; border-radius: 10px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .card-section h2 { font-size: 1.2rem; color: #2c3e50; margin-bottom: 15px; border-bottom: 1px solid #edf2f7; padding-bottom: 10px; }
+        
+        .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 15px; }
+        .metric-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; }
+        .metric-label { font-size: 0.85rem; color: #64748b; font-weight: 600; text-transform: uppercase; margin-bottom: 8px; }
+        .metric-value { font-size: 1.8rem; font-weight: bold; color: #0f172a; }
+        .unit { font-size: 1rem; color: #475569; font-weight: normal; }
+        
+        /* Formulários e Seleção de Parâmetros */
+        .form-row { display: flex; align-items: center; justify-content: space-between; margin-top: 15px; gap: 10px; }
+        .input-group { display: flex; gap: 8px; width: 100%; max-width: 300px; }
+        input[type="number"] { width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 1rem; }
+        button.btn-save { background-color: #0f172a; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; }
+        button.btn-save:hover { background-color: #1e293b; }
+
+        /* Switch Toggle */
+        .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .3s; border-radius: 24px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; }
+        input:checked + .slider { background-color: #10b981; }
+        input:checked + .slider:before { transform: translateX(20px); }
+
+        .status-badge { display: inline-block; padding: 4px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: bold; float: right; }
+        .bg-green { background: #dcfce7; color: #15803d; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Estado do Sistema</h1>
+        <p class="subtitle">Dashboard do EcoNode / ESP32-C6</p>
+
+        <!-- Leituras em Tempo Real -->
+        <div class="card-section">
+            <h2>Monitor Ambiental <span class="status-badge bg-green">AO VIVO</span></h2>
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-label">Temperatura</div>
+                    <div class="metric-value"><span id="temp">--.--</span> <span class="unit">&deg;C</span></div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Humidade</div>
+                    <div class="metric-value"><span id="hum">--.--</span> <span class="unit">%</span></div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Período Atual</div>
+                    <div class="metric-value"><span id="period">--</span> <span class="unit">s</span></div>
+                </div>
+            </div>
+
+            <!-- Seleção e Alteração de Parâmetros -->
+            <div class="form-row">
+                <label for="periodInput"><b>Período de leitura (s):</b></label>
+                <div class="input-group">
+                    <input type="number" id="periodInput" min="1" max="3600" value="1">
+                    <button class="btn-save" onclick="updateConfig()">Guardar</button>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div>
+                    <b>Registo em cartão SD</b><br>
+                    <small style="color: #64748b;">Ativa ou desativa a escrita no cartão microSD</small>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" id="sdLoggingToggle" onchange="updateConfig()">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Leitura Periódica dos Dados
+        function fetchSensorData() {
+            fetch('/api/data')
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById('temp').innerText = data.temperature.toFixed(2);
+                    document.getElementById('hum').innerText = data.humidity.toFixed(2);
+                    document.getElementById('period').innerText = data.period;
+                })
+                .catch(err => console.error("Erro ao ler dados:", err));
+        }
+
+        // Submissão das Alterações efetuadas pelo Utilizador
+        function updateConfig() {
+            const periodVal = parseInt(document.getElementById('periodInput').value);
+            const sdLoggingVal = document.getElementById('sdLoggingToggle').checked;
+
+            fetch('/api/config', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    period: periodVal,
+                    sd_logging: sdLoggingVal
+                })
+            })
+            .then(res => {
+                if(res.ok) alert("Configuração atualizada com sucesso!");
+                else alert("Erro ao guardar configuração.");
+            })
+            .catch(err => console.error("Erro ao submeter parâmetros:", err));
+        }
+
+        setInterval(fetchSensorData, 1000);
+        fetchSensorData();
+    </script>
+</body>
+</html>
