@@ -5,7 +5,6 @@
 #include <sys/stat.h>               // stat(): verificar se um ficheiro existe
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#include "driver/gpio.h"            // configuração de GPIO e interrupções
 #include "driver/spi_common.h"      // inicialização do barramento SPI
 #include "esp_timer.h"              // temporizador de alta resolução (para "millis")
 #include "esp_log.h"                // ESP_LOGI / ESP_LOGE
