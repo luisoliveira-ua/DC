@@ -27,6 +27,7 @@ i2c_master_dev_handle_t dev_handle;
 // Estrutura que armazena os valores lidos pelo sensor DHT20
 dht20_data_t valores;
 
+MessageBufferHandle_t buffer_amostras = NULL;
 
 
 
@@ -113,6 +114,17 @@ static void read_dht20(i2c_master_bus_handle_t *bus_handle, i2c_master_dev_handl
             //4) Converter para unidades reais (fórmulas do datasheet)
             valores.humidade = ((float)raw_humidity / 1048576.0f) * 100.0f;
             valores.temperatura = ((float)raw_temperature / 1048576.0f) * 200.0f - 50.0f;
+
+            size_t enviados = xMessageBufferSend(
+                            buffer_amostras,
+                            &valores,
+                            sizeof(valores),
+                            pdMS_TO_TICKS(0));
+            
+            if(enviados != sizeof(valores)){
+               ESP_LOGE(TAG, "Erro no envio no buffer: %s",esp_err_to_name(ret));
+               continue;
+        }
             
      
         }
@@ -131,7 +143,7 @@ static void read_dht20(i2c_master_bus_handle_t *bus_handle, i2c_master_dev_handl
 
 
 
-void app_main(void)
+void dht20_demo(void)
 {
     // Guarda o byte de estado lido do sensor
     uint8_t status;

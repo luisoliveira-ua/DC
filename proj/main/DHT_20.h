@@ -3,8 +3,9 @@
 
 #include "driver/i2c_master.h"
 
+void dht20_demo(void);
 
-// Estrutura com os dados lidos
+extern MessageBufferHandle_t buffer_amostras;
 typedef struct {
     float temperatura;
     float humidade;
