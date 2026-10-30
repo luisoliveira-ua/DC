@@ -35,7 +35,7 @@
 
 **Verificações efetuadas.** Foi feita uma revisão do código. A leitura de temperatura e humidade do sensor DHT20 foi testada. A periodicidade configurável ainda não foi verificada. A iluminação de iniciação do LED RGB também foi testada.
 
-**Divisão de trabalho.** 125016: a preencher. 126011: a preencher.
+**Divisão de trabalho.** 125016: Comunicação I²C com o DHT20, conversão das leituras e envio das amostras pelo Message Buffer; Teste de leitura do DHT20; Tarefa de armazenamento: receção das amostras e escrita de data, temperatura e humidade no microSD; Criação do módulo do LED RGB e teste básico de iluminação. 126011: Criação do config.json com os parâmetros atribuídos ao grupo; Criação do módulo de leitura e validação da configuração; Registo dos ADRs 001–004 e atualização da tabela de requisitos no README.
 
 **Utilização de ferramentas de geração assistida.** Foi consultado um assistente para apoio na correção do código.
 
