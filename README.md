@@ -25,7 +25,7 @@
 
 ## Semana 1 e 2 (19/10 a 30/10)
 
-**Requisitos trabalhados:** RF1, RF3, RF4, RF7, RNF1.
+**Requisitos trabalhados:** RF1, RF3, RF4, RF7, RNF1, RNF7.
 
 **Trabalho realizado.** Em `proj/main/sensor/DHT_20.c`, foi implementada a comunicação I²C com o DHT20, a conversão das leituras e o envio das amostras através de um Message Buffer. A tarefa `sd_data`, em `proj/main/cartao/cartao.c`, recebe as amostras e regista data, temperatura e humidade no cartão microSD. Foi criado o módulo do LED RGB em `proj/main/led/`. Foi também criado o módulo `proj/main/config/app_config.c` para ler e validar a versão, o período de amostragem e os parâmetros atribuídos ao grupo no `config.json` da raiz do repositório.
 
