@@ -17,7 +17,7 @@ static const char *TAG = "DHT20";
 #define I2C_MASTER_TX_BUF_DISABLE   0
 #define I2C_MASTER_RX_BUF_DISABLE   0
 #define I2C_MASTER_TIMEOUT_MS       1000
-#define dht20_ADDR                   0x38
+#define dht20_ADDR                  0x38
 
 
 // Handle do barramento I2C: identifica o barramento criado por i2c_new_master_bus().
@@ -28,6 +28,8 @@ i2c_master_dev_handle_t dev_handle;
 
 // Estrutura que armazena os valores lidos pelo sensor DHT20
 dht20_data_t valores;
+
+
 
 // Função que inicializa o barramento I2C (modo master) e adiciona o sensor DHT20 como dispositivo no barramento.
 // Recebe dois ponteiros para handles, que são preenchidos por esta função:
@@ -72,11 +74,14 @@ static void read_dht20(i2c_master_dev_handle_t dev_handle){
         uint8_t trigger_cmd[3] = {0xAC, 0x33, 0x00}; 
 
         // Envia o comando ao sensor. Timeout -1 = espera indefinidamente.
-        esp_err_t ret = i2c_master_transmit(dev_handle, trigger_cmd,
-                                            sizeof(trigger_cmd), 0);
+;
+
+        esp_err_t ret=i2c_master_transmit(dev_handle, trigger_cmd, sizeof(trigger_cmd), I2C_MASTER_TIMEOUT_MS);
+
 
         if(ret != ESP_OK){
             ESP_LOGE(TAG, "Erro na transmissão I2C: %s",esp_err_to_name(ret));
+            vTaskDelay(pdMS_TO_TICKS(500));
             continue;
         }
         
@@ -87,10 +92,11 @@ static void read_dht20(i2c_master_dev_handle_t dev_handle){
         //  2) Ler a resposta (7 bytes)
         // Formato: [0] estado | [1..3] humidade + parte da temperatura | [4..5] temperatura | [6] CRC
         uint8_t rx_data[7] = {0}; 
-        ret = i2c_master_receive(dev_handle, rx_data, sizeof(rx_data), 0);
+        ret = i2c_master_receive(dev_handle, rx_data, sizeof(rx_data), I2C_MASTER_TIMEOUT_MS);
 
          if (ret != ESP_OK) {
-            ESP_LOGE(TAG, "Erro na receção I2C: %s",esp_err_to_name(ret));
+            ESP_LOGE(TAG, "Erro na receção I2C: %s", esp_err_to_name(ret));
+            vTaskDelay(pdMS_TO_TICKS(2000));
             continue;
         }
         
@@ -122,7 +128,7 @@ static void read_dht20(i2c_master_dev_handle_t dev_handle){
                             pdMS_TO_TICKS(0));
             
             if(enviados != sizeof(valores)){
-               ESP_LOGE(TAG, "Erro no envio no buffer: %s",esp_err_to_name(ret));
+               ESP_LOGE(TAG, "Buffer sem espaço para enviar a amostra");
                continue;
         }
             
@@ -143,8 +149,9 @@ static void read_dht20(i2c_master_dev_handle_t dev_handle){
 
 
 
-void dht20(void)
+void dht20(void *arg)
 {
+    (void)arg;
     // Guarda o byte de estado lido do sensor
     uint8_t status;
 

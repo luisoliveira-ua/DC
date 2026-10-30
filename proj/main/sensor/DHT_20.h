@@ -6,7 +6,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/message_buffer.h"
 
-void dht20(void);
+void dht20(void *arg);
 
 extern MessageBufferHandle_t buffer_amostras;
 typedef struct {

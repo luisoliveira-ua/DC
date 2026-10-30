@@ -1,10 +1,14 @@
 #include "cartao.h"
 #include "DHT_20.h"
+<<<<<<< Updated upstream
 #include "config/app_config.h"
 #include "esp_log.h"
 #include "freertos/task.h"
 
 static const char *TAG = "main";
+=======
+#include "freertos/task.h"
+>>>>>>> Stashed changes
 
 MessageBufferHandle_t buffer_amostras = NULL;
 
@@ -22,6 +26,7 @@ void app_main(void)
     configASSERT(buffer_amostras != NULL);
 
     ESP_ERROR_CHECK(cartao_init());
+<<<<<<< Updated upstream
 
     esp_err_t err = app_config_init();
     if (err != ESP_OK) {
@@ -32,4 +37,8 @@ void app_main(void)
     if (xTaskCreate(dht20_task, "dht20", 4096, NULL, 5, NULL) != pdPASS) {
         ESP_LOGE(TAG, "Não foi possível criar a tarefa do DHT20");
     }
+=======
+    BaseType_t resultado = xTaskCreate(dht20, "dht20", 4096, NULL, 5, NULL);
+    configASSERT(resultado == pdPASS);
+>>>>>>> Stashed changes
 }
