@@ -19,5 +19,5 @@
 | **RNF4** | Interface simples e intuitiva | não iniciado | — |
 | **RNF5** | Alteração de parâmetros sem recompilação | não iniciado | — |
 | **RNF6** | Segurança das credenciais e dos dados | não iniciado | — |
-| **RNF7** | Interfaces públicas e independência entre módulos | não iniciado | — |
+| **RNF7** | Interfaces públicas e independência entre módulos | em curso | — |
 
