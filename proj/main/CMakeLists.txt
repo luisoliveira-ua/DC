@@ -1,3 +1,24 @@
-idf_component_register(SRCS "cartao.c" "DHT_20.c" "led.c" "main.c"
-                    INCLUDE_DIRS "."
-                    REQUIRES led_strip)
+idf_component_register(
+    SRCS
+        "main.c"
+        "cartao/cartao.c"
+        "sensor/DHT_20.c"
+        "led/led.c"
+        "config/time.c"
+        "config/app_config.c"
+    INCLUDE_DIRS
+        "."
+        "cartao"
+        "sensor"
+        "led"
+    REQUIRES
+        led_strip
+        fatfs
+        sdmmc
+        esp_driver_spi
+        esp_driver_i2c
+        esp_driver_gpio
+        esp_timer
+        log
+        lwip
+)

@@ -1,0 +1,8 @@
+{
+  "config_version": 1,
+  "periodo_leitura_s": 2,
+  "node_id": 1056,
+  "telemetry_base": "econode/1056/",
+  "gatt_config_service_uuid": "E0C0DE00-0000-4000-8000-000000000420"
+}
+

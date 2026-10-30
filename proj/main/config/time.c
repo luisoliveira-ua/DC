@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include "esp_sntp.h"
+#include "time.h"
 
 void iniciar_ntp(void)
 {
@@ -14,7 +15,7 @@ void iniciar_ntp(void)
 
 
 
-int64_t time_now(){
+int64_t time_now(void){
     
 
     time_t agora = time(NULL);

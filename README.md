@@ -1,10 +1,8 @@
 # DC
 
-Projeto de DC
-
 ## Semana 1 e 2 (19/10 a 30/10)
 
-**Requisitos trabalhados:** RF1, RF3, RF4
+**Requisitos trabalhados:** RF1, RF3, RF4, RF7
 
 **Trabalho realizado.** Em `proj/main/DHT_20.c`, foi implementada a comunicação I2C com o DHT20, a conversão das leituras de temperatura e humidade e o envio dos valores para um Message Buffer. Em `proj/main/cartao.c`, foi criada uma tarefa que recebe amostras do buffer e acrescenta os valores ao ficheiro `leitura.txt` no microSD. Foi também criado o módulo `led.c`/`led.h` para controlar o LED RGB integrado da ESP32-C6-DevKitC-1.
 
@@ -14,7 +12,7 @@ Projeto de DC
 
 **Verificações efetuadas.** Foi feita uma revisão do código, mas ainda não foram realizadas verificações no ESP32 nem medições de periodicidade ou escrita no cartão.
 
-**Divisão de trabalho.** 125016: ; 125011:
+**Divisão de trabalho.** 125016: ; 126011:
 
 **Utilização de ferramentas de geração assistida.** Consulta a um assistente para corrigir código.
 

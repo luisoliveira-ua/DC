@@ -2,8 +2,8 @@
 #define TIME
 
 
-void iniciar_ntp();
-static int64_t time_now();
+void iniciar_ntp(void);
+int64_t time_now(void);
 
 
 #endif

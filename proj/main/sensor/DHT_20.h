@@ -1,7 +1,10 @@
 #ifndef DHT_20
 #define DHT_20
 
+#include <stdint.h>
 #include "driver/i2c_master.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/message_buffer.h"
 
 void dht20(void);
 

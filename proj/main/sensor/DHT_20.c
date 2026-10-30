@@ -4,7 +4,8 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_log.h"
-#include "time.h"
+#include "../config/app_config.h"
+#include "../config/time.h"
 
 static const char *TAG = "DHT20";
 
@@ -27,10 +28,6 @@ i2c_master_dev_handle_t dev_handle;
 
 // Estrutura que armazena os valores lidos pelo sensor DHT20
 dht20_data_t valores;
-
-MessageBufferHandle_t buffer_amostras = NULL;
-
-
 
 // Função que inicializa o barramento I2C (modo master) e adiciona o sensor DHT20 como dispositivo no barramento.
 // Recebe dois ponteiros para handles, que são preenchidos por esta função:
@@ -67,7 +64,7 @@ static void i2c_master_init(i2c_master_bus_handle_t *bus_handle, i2c_master_dev_
 
 //Tarefa/função que lê periodicamente o sensor DHT20 (temperatura e humidade) por I2C
 // e escreve ----
-static void read_dht20(i2c_master_bus_handle_t *bus_handle, i2c_master_dev_handle_t *dev_handle){
+static void read_dht20(i2c_master_dev_handle_t dev_handle){
 
     while (1) {
         // 1) Pedir ao sensor para iniciar a medição
@@ -75,7 +72,8 @@ static void read_dht20(i2c_master_bus_handle_t *bus_handle, i2c_master_dev_handl
         uint8_t trigger_cmd[3] = {0xAC, 0x33, 0x00}; 
 
         // Envia o comando ao sensor. Timeout -1 = espera indefinidamente.
-        esp_err_t ret=ESP_ERROR_CHECK(i2c_master_transmit(dev_handle, trigger_cmd, sizeof(trigger_cmd),0));
+        esp_err_t ret = i2c_master_transmit(dev_handle, trigger_cmd,
+                                            sizeof(trigger_cmd), 0);
 
         if(ret != ESP_OK){
             ESP_LOGE(TAG, "Erro na transmissão I2C: %s",esp_err_to_name(ret));
@@ -89,7 +87,7 @@ static void read_dht20(i2c_master_bus_handle_t *bus_handle, i2c_master_dev_handl
         //  2) Ler a resposta (7 bytes)
         // Formato: [0] estado | [1..3] humidade + parte da temperatura | [4..5] temperatura | [6] CRC
         uint8_t rx_data[7] = {0}; 
-        ESP_ERROR_CHECK(i2c_master_receive(dev_handle, rx_data, sizeof(rx_data), 0));
+        ret = i2c_master_receive(dev_handle, rx_data, sizeof(rx_data), 0);
 
          if (ret != ESP_OK) {
             ESP_LOGE(TAG, "Erro na receção I2C: %s",esp_err_to_name(ret));
@@ -135,8 +133,8 @@ static void read_dht20(i2c_master_bus_handle_t *bus_handle, i2c_master_dev_handl
             ESP_LOGW(TAG, "Sensor ocupado, medição ignorada."); 
         }
 
-        // Espera 2 segundos até à próxima medição
-        vTaskDelay(pdMS_TO_TICKS(2000));
+        // O período é consultado no módulo de configuração em cada ciclo.
+        vTaskDelay(pdMS_TO_TICKS(app_config_get_periodo_s() * 1000U));
     }
 }
 
@@ -180,7 +178,7 @@ void dht20(void)
 
     //3) Ciclo de leitura
     // Lê temperatura e humidade periodicamente.
-    read_dht20(&bus_handle, &dev_handle);
+    read_dht20(dev_handle);
 
     //4) Libertar recursos
     // Remove o dispositivo (DHT20) do barramento
